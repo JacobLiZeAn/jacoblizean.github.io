@@ -1,13 +1,81 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="utf-8">
-<title>HTML</title>
+  <meta charset="UTF-8">
+  <title>下载图片工具</title>
+  <script src="https://cdn.bootcdn.net/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 </head>
 <body>
+  <h1>下载图片工具</h1>
+  <p>请输入图片的网址：</p>
+  <input type="text" id="imageUrl" style="width: 400px;">
+  <br>
+  <p>请输入你的用户名：</p>
+  <input type="text" id="userName" style="width: 400px;">
+  <br><br>
+  <button onclick="askSaveToDesktop()">下载</button>
+  <br><br>
+  <div id="message"></div>
+  <script>
+    function showMessage(msg) {
+      var messageDiv = document.getElementById("message");
+      messageDiv.innerText = msg;
+    }
 
-<h1>RuzNoDick</h1>
+    function downloadImage() {
+      var imageUrl = document.getElementById("imageUrl").value;
+      if (imageUrl === "") {
+        showMessage("请输入图片网址");
+        return;
+      }
+      var xhr = new XMLHttpRequest();
+      xhr.open("GET", imageUrl, true);
+      xhr.responseType = "blob";
+      xhr.onload = function() {
+        if (xhr.status === 200) {
+          saveAs(xhr.response, "image.jpg");
+          showMessage("下载成功");
+        } else {
+          showMessage("下载失败");
+        }
+      };
+      xhr.send();
+    }
 
+    function askSaveToDesktop() {
+      if (confirm("是否保存到桌面？")) {
+        var savePath = "C:\\Users\\" + document.getElementById("userName").value + "\\Desktop";
+        var fileName = "image.jpg";
+        var fileUrl = document.getElementById("imageUrl").value;
+        downloadFile(fileUrl, savePath, fileName);
+      } else {
+        downloadImage();
+      }
+    }
 
+    function downloadFile(url, savePath, fileName) {
+      var xhr = new XMLHttpRequest();
+      xhr.open("GET", url, true);
+      xhr.responseType = "blob";
+      xhr.onload = function() {
+        if (xhr.status === 200) {
+          var blob = xhr.response;
+          var link = document.createElement("a");
+          link.href = window.URL.createObjectURL(blob);
+          link.download = fileName;
+          link.addEventListener("click", function() {
+            setTimeout(function() {
+              window.URL.revokeObjectURL(link.href);
+            }, 1000); // 1秒后自动释放 URL 对象
+          });
+          link.click();
+          showMessage("下载成功");
+        } else {
+          showMessage("下载失败");
+        }
+      };
+      xhr.send();
+    }
+  </script>
 </body>
 </html>
